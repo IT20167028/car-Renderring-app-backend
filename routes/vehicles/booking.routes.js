@@ -153,4 +153,32 @@ router.patch("/confirmBooking/:id", async (req, res) => {
   }
 });
 
+//change booking status to declined
+router.patch("/declineBooking/:id", async (req, res) => {
+  try {
+    const bookongID = req.params.id;
+
+    const booking = await Booking.findById(bookongID);
+
+    if (booking) {
+      booking.bookingStatus = "Declined";
+      await booking.save();
+      return res.status(200).json({
+        status: true,
+        message: "Booking declined",
+      });
+    } else {
+      return res.status(404).json({
+        status: false,
+        message: "Booking not found",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      status: false,
+      message: error.message,
+    });
+  }
+});
+
 module.exports = router;
