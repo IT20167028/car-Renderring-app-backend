@@ -8,10 +8,7 @@ router.post("/bookcar", async (req, res) => {
   try {
     const newbooking = new Booking(req.body);
     await newbooking.save();
-    const car = await Car.findOne({ _id: req.body.car });
-    car.bookedTimeSlots.push(req.body.bookedTimeSlots);
 
-    await car.save();
     res.status(200).json({
       status: true,
       message: "Car booked successfully",
@@ -103,6 +100,7 @@ router.get("/getcarbookings/:id", async (req, res) => {
     const bookings = await Booking.find({ car: carID });
     var temp = [];
     for (var booking of bookings) {
+      //remove overdue bookings from the time slots
       if (booking.bookingStatus == "Confirmed") {
         temp.push(booking.bookedTimeSlots);
       }
@@ -137,6 +135,11 @@ router.patch("/confirmBooking/:id", async (req, res) => {
     if (booking) {
       booking.bookingStatus = "Confirmed";
       await booking.save();
+
+      //save booking time slots to car
+      const car = await Car.findById(booking.car);
+      car.bookedTimeSlots.push(booking.bookedTimeSlots);
+      await car.save();
       return res.status(200).json({
         status: true,
         message: "Booking confirmed",
@@ -182,5 +185,4 @@ router.patch("/declineBooking/:id", async (req, res) => {
     });
   }
 });
-
 module.exports = router;
