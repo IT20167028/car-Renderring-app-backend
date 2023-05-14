@@ -103,7 +103,9 @@ router.get("/getcarbookings/:id", async (req, res) => {
     const bookings = await Booking.find({ car: carID });
     var temp = [];
     for (var booking of bookings) {
-      temp.push(booking.bookedTimeSlots);
+      if (booking.bookingStatus == "Confirmed") {
+        temp.push(booking.bookedTimeSlots);
+      }
     }
     if (bookings.length == 0) {
       return res.status(400).json({
